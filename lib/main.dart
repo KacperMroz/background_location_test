@@ -52,13 +52,33 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // 1.  Listen to events (See docs for all 12 available events).
     bg.BackgroundGeolocation.onHeartbeat((bg.HeartbeatEvent event) {
-      // print('[onHeartbeat] ${event}');
+      print('[onHeartbeat] ${event}');
       // You could request a new location if you wish.
       bg.BackgroundGeolocation.getCurrentPosition(
           samples: 1,
           persist: true
       ).then((bg.Location location) {
-        // print('[getCurrentPosition] ${location.coords.latitude} ${location.coords.longitude}');
+        print('[getCurrentPosition] ${location.coords.latitude} ${location.coords.longitude}');
+        t.testCallback(location.coords.latitude.toString(), location.coords.longitude.toString());
+      });
+    });
+
+    bg.BackgroundGeolocation.onMotionChange((bg.Location location) {
+      if (location.isMoving) {
+        print('[onMotionChange] Device has just started MOVING ${location}');
+      } else {
+        print('[onMotionChange] Device has just STOPPED:  ${location}');
+      }
+    });
+
+    bg.BackgroundGeolocation.onActivityChange((bg.ActivityChangeEvent event) {
+      print('[onActivityChange] ${event}');
+      // You could request a new location if you wish.
+      bg.BackgroundGeolocation.getCurrentPosition(
+          samples: 1,
+          persist: true
+      ).then((bg.Location location) {
+        print('[getCurrentPosition] ${location.coords.latitude} ${location.coords.longitude}');
         t.testCallback(location.coords.latitude.toString(), location.coords.longitude.toString());
       });
     });
@@ -68,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
     bg.BackgroundGeolocation.ready(bg.Config(
         heartbeatInterval: 60,
         desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
-        distanceFilter: 0,
+        distanceFilter: 10.0,
         stopOnTerminate: false,
         startOnBoot: true,
         debug: true,
@@ -151,6 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _odometer = odometerKM;
     });
   }
+
 
   void _onMotionChange(bg.Location location) {
     print('[motionchange] - $location');
