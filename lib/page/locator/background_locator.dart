@@ -1,35 +1,35 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter_background_geolocation/flutter_background_geolocation.dart' as bg;
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+    as bg;
 import 'package:flutter/material.dart';
 
-class BackgroundLocatorApp extends StatefulWidget {
-  const BackgroundLocatorApp({Key? key}) : super(key: key);
+class BackgroundLocatorView extends StatefulWidget {
+  const BackgroundLocatorView({Key? key}) : super(key: key);
 
   @override
-  State<BackgroundLocatorApp> createState() => _BackgroundLocatorAppState();
+  State<BackgroundLocatorView> createState() => _BackgroundLocatorViewState();
 }
 
 JsonEncoder encoder = const JsonEncoder.withIndent("     ");
 
-class _BackgroundLocatorAppState extends State<BackgroundLocatorApp> {
-  bool? _isMoving;
-  bool? _enabled;
+class _BackgroundLocatorViewState extends State<BackgroundLocatorView> {
   String? _motionActivity;
   String? _odometer;
   String? _content;
   Timer? timer;
+  bool? isInSpecificArea;
+  double? _lattitude;
+  double? _longitude;
+  double? _speed;
+  String? _uuid;
 
   @override
   void initState() {
     super.initState();
-    _isMoving = false;
-    _enabled = false;
     _content = '';
-    _motionActivity = 'UNKNOWN';
+    _motionActivity = '- brak';
     _odometer = '0';
-
-    _onClickEnable(true);
 
     // 1.  Listen to events (See docs for all 12 available events).
     bg.BackgroundGeolocation.onLocation(_onLocation);
@@ -39,11 +39,10 @@ class _BackgroundLocatorAppState extends State<BackgroundLocatorApp> {
       print('printuje tu tyyyp ${location.activity.type}');
       if (!location.isMoving) {
         print('nie ide nigdzie');
-        bg.BackgroundGeolocation.getCurrentPosition(
-            samples: 1,
-            persist: true
-        ).then((bg.Location location) {
-          print('[getCurrentPosition] ${location.coords.latitude} ${location.coords.longitude}');
+        bg.BackgroundGeolocation.getCurrentPosition(samples: 1, persist: true)
+            .then((bg.Location location) {
+          print(
+              '[getCurrentPosition] ${location.coords.latitude} ${location.coords.longitude}');
         });
       } else {
         print('ide i to z impetem');
@@ -60,14 +59,22 @@ class _BackgroundLocatorAppState extends State<BackgroundLocatorApp> {
     });
     bg.BackgroundGeolocation.onGeofence((bg.GeofenceEvent event) {
       if (event.action == 'ENTER') {
-        timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-          debugPrint(timer.tick.toString());
-          debugPrint('wchodze w strefe domu');
-        });
+        // timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        //   debugPrint(timer.tick.toString());
+        //   debugPrint('wchodze w strefe domu');
+        //
+        // });
         //todo zamiast timera tu bedzie request wysylka api mail + iq lokalizacji tzw uuid z -Location
+        setState(() {
+          isInSpecificArea = true;
+        });
+
       }
       if (event.action == 'EXIT') {
-        timer!.cancel();
+        setState(() {
+          isInSpecificArea = false;
+        });
+        // timer!.cancel();
         //todo tu nie strzelamy wiecej wiec ucinamy requesty
       }
       if (event.action == 'DWELL') {
@@ -77,18 +84,28 @@ class _BackgroundLocatorAppState extends State<BackgroundLocatorApp> {
       print('dom event ${event.action}');
     });
 
-    bg.BackgroundGeolocation.addGeofence(bg.Geofence(
-        identifier: 'DOM',
-        radius: 150,
-        latitude: 50.0507085,
-        longitude: 19.9294436,
-        notifyOnEntry: true,
-        notifyOnExit: true,
-        loiteringDelay: 10000))
-        .then((bool success) {
+    List<bg.Geofence> geofences = [
+      bg.Geofence(
+          identifier: 'DOM',
+          radius: 150,
+          latitude: 50.0507085,
+          longitude: 19.9294436,
+          notifyOnEntry: true,
+          notifyOnExit: true,
+          loiteringDelay: 10000),
+      bg.Geofence(
+          identifier: 'DOM2',
+          radius: 150,
+          latitude: 50.6949,
+          longitude: 20.4600,
+          notifyOnEntry: true,
+          notifyOnExit: true,
+          loiteringDelay: 10000),
+    ];
+
+    bg.BackgroundGeolocation.addGeofences(geofences).then((bool success) {
       print('[addGeofence] success');
     });
-
     bg.BackgroundGeolocation.onProviderChange(_onProviderChange);
     bg.BackgroundGeolocation.onConnectivityChange(_onConnectivityChange);
 
@@ -114,7 +131,6 @@ class _BackgroundLocatorAppState extends State<BackgroundLocatorApp> {
       print('[ready] ERROR: $error');
     });
   }
-  // _getSensors();
 
   ////
   // Event handlers
@@ -125,36 +141,20 @@ class _BackgroundLocatorAppState extends State<BackgroundLocatorApp> {
     String odometerKM = (location.odometer / 1000.0).toStringAsFixed(1);
     int confidence = location.activity.confidence;
     String activityType = location.activity.type;
+    double lat = location.coords.latitude;
+    double lng = location.coords.longitude;
+    double speed = location.coords.speed;
+    String uuid = location.uuid;
     print(
         "debug 3 ->>>>>>>>>>>>>>>>>>>>> [onLocation] Motion activity, type: $activityType, confidence: $confidence");
     setState(() {
       _content = encoder.convert(location.toMap());
       _odometer = odometerKM;
+      _lattitude = lat;
+      _longitude = lng;
+      _speed = speed;
+      _uuid = uuid;
     });
-  }
-
-  void _onClickEnable(enabled) {
-    if (enabled) {
-      bg.BackgroundGeolocation.start().then((bg.State state) {
-        print('[start] success $state');
-        setState(() {
-          _enabled = state.enabled;
-          _isMoving = state.isMoving;
-        });
-      });
-    } else {
-      bg.BackgroundGeolocation.stop().then((bg.State state) {
-        print('[stop] success: $state');
-        // Reset odometer.
-        bg.BackgroundGeolocation.setOdometer(0.0);
-
-        setState(() {
-          _odometer = '0.0';
-          _enabled = state.enabled;
-          _isMoving = state.isMoving;
-        });
-      });
-    }
   }
 
   void _onProviderChange(bg.ProviderChangeEvent event) {
@@ -171,21 +171,42 @@ class _BackgroundLocatorAppState extends State<BackgroundLocatorApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Background Geolocation'),
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
         ),
-        body: SingleChildScrollView(child: Text('$_content')),
-        bottomNavigationBar: BottomAppBar(
-            child: Container(
-                padding: const EdgeInsets.only(left: 5.0, right: 5.0),
-                child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text('$_motionActivity · $_odometer km'),
-                    ]))),
+        clipBehavior: Clip.antiAlias,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                  'Jesteś w wyznaczonym miejscu: ${isInSpecificArea == true ? 'Tak' : 'Nie'}'),
+              Text('Współrzędne: $_lattitude $_longitude'),
+              Text('Ostatnia prędkość: $_speed'),
+              Text('Id: $_uuid'),
+              Text('Aktywność ruchowa:$_motionActivity '),
+              Text('Przebyty dystans: $_odometer km'),
+            ]
+                .expand(
+                  (element) => [
+                    element,
+                    const SizedBox(
+                      height: 13,
+                    ),
+                  ],
+                )
+                .toList(),
+          ),
+        ),
       ),
     );
   }

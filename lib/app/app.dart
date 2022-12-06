@@ -1,9 +1,10 @@
-import 'package:backk_location_test/background_locator.dart';
-import 'package:backk_location_test/location.dart';
-import 'package:backk_location_test/navigation.dart';
-import 'package:backk_location_test/splash.dart';
+import 'package:backk_location_test/page/home_page.dart';
+import 'package:backk_location_test/page/locator/background_locator_page.dart';
+import 'package:backk_location_test/page/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+import '../navigation/navigation.dart';
 
 class Lokalizator extends StatelessWidget {
   Lokalizator({Key? key}) : super(key: key);
@@ -15,7 +16,7 @@ class Lokalizator extends StatelessWidget {
         brightness: Brightness.light,
         scaffoldBackgroundColor: Colors.white60,
         primaryColor: Colors.white,
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
           color: Color(0xFF2D2D2D),
         ),
         textTheme: const TextTheme(
@@ -39,12 +40,12 @@ class Lokalizator extends StatelessWidget {
         builder: (context, state) => const SplashPage(),
       ),
       GoRoute(
-        path: Navigation.location,
-        builder: (context, state) => const LocationPage(),
+        path: Navigation.home,
+        builder: (context, state) => const HomePage(),
       ),
       GoRoute(
-        path: Navigation.home,
-        builder: (context, state) => const BackgroundLocatorApp(),
+        path: Navigation.location,
+        builder: (context, state) => const BackgroundLocatorPage(),
       ),
     ],
   );
