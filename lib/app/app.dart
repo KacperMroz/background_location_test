@@ -1,5 +1,5 @@
 import 'package:backk_location_test/page/home_page.dart';
-import 'package:backk_location_test/page/locator/background_locator_page.dart';
+import 'package:backk_location_test/page/locator/views/background_locator_page.dart';
 import 'package:backk_location_test/page/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
