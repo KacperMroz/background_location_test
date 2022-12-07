@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
+import 'package:device_information/device_information.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
+import 'package:permission_handler/permission_handler.dart';
 
 part 'locator_state.dart';
 
@@ -12,6 +14,7 @@ class LocatorCubit extends Cubit<LocatorState> {
   LocatorCubit() : super(const LocatorState());
 
   JsonEncoder encoder = const JsonEncoder.withIndent("     ");
+  Permission _permission = Permission.phone;
 
   List<bg.Geofence> geofences = [
     bg.Geofence(
@@ -29,11 +32,13 @@ class LocatorCubit extends Cubit<LocatorState> {
         longitude: 20.4600,
         notifyOnEntry: true,
         notifyOnExit: true,
-        loiteringDelay: 10000),
+        loiteringDelay: 10000,),
   ];
 
   Future<void> initialize() async {
     // 1.  Listen to events (See docs for all 12 available events).
+    requestPermission(_permission);
+
     bg.BackgroundGeolocation.onLocation(_onLocation);
 
     bg.BackgroundGeolocation.onMotionChange(_onMotionChange);
@@ -91,6 +96,14 @@ class LocatorCubit extends Cubit<LocatorState> {
       speed: speed,
       uuid: uuid,
     ));
+  }
+
+  Future<void> _onGetDeviceInfo() async {
+    String IMEI;
+    var imeiNo = await DeviceInformation.deviceIMEINumber;
+    IMEI = imeiNo.toString();
+    emit(state.copyWith(status: LocatorStatus.success, imei: IMEI));
+    print('IMEI: $IMEI');
   }
 
   void _onMotionChange(bg.Location location) {
@@ -156,5 +169,14 @@ class LocatorCubit extends Cubit<LocatorState> {
       // timer!.cancel();
     }
     print('dom event ${event.action}');
+  }
+
+  Future<void> requestPermission(Permission permission) async {
+    final status = await permission.request();
+    print('TU JESTEM@@@');
+    print('Status: $status');
+    if(status == PermissionStatus.granted) {
+      await _onGetDeviceInfo();
+    }
   }
 }

@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.backk_location_test">
+    <uses-permission
+        android:name="android.permission.READ_PHONE_STATE" />
    <application
        tools:replace="android:label"
         android:label="backk_location_test"

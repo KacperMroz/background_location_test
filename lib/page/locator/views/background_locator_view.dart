@@ -38,6 +38,7 @@ class _BackgroundLocatorViewState extends State<BackgroundLocatorView> {
                       longitude: state.longitude,
                       speed: state.speed,
                       uuid: state.uuid,
+                      imei: state.imei,
                     )
                   : const SizedBox(
                       height: 200,
@@ -68,6 +69,7 @@ class _LocationContentColumn extends StatelessWidget {
     required this.longitude,
     required this.speed,
     required this.uuid,
+    required this.imei,
     Key? key,
   }) : super(key: key);
 
@@ -79,6 +81,7 @@ class _LocationContentColumn extends StatelessWidget {
   final double? longitude;
   final double? speed;
   final String? uuid;
+  final String? imei;
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +96,7 @@ class _LocationContentColumn extends StatelessWidget {
         Text('Id: $uuid'),
         Text('Aktywność ruchowa:$motionActivity '),
         Text('Przebyty dystans: $odometer km'),
+        Text('IMEI: $imei')
       ]
           .expand(
             (element) => [

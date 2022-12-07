@@ -18,6 +18,7 @@ class LocatorState extends Equatable {
     double? longitude,
     double? speed,
     String? uuid,
+    String? imei,
   })  : motionActivity = motionActivity ?? '- brak',
         content = content ?? '',
         odometer = odometer ?? '0',
@@ -25,7 +26,8 @@ class LocatorState extends Equatable {
         latitude = latitude ?? 0,
         longitude = longitude ?? 0,
         speed = speed ?? 0,
-        uuid = uuid ?? '';
+        uuid = uuid ?? '',
+        imei = imei ?? '';
 
   final LocatorStatus status;
   final String? motionActivity;
@@ -36,6 +38,7 @@ class LocatorState extends Equatable {
   final double? longitude;
   final double? speed;
   final String? uuid;
+  final String? imei;
 
   LocatorState copyWith({
     LocatorStatus? status,
@@ -47,6 +50,7 @@ class LocatorState extends Equatable {
     double? longitude,
     double? speed,
     String? uuid,
+    String? imei,
   }) {
     return LocatorState(
       status: status ?? this.status,
@@ -58,6 +62,7 @@ class LocatorState extends Equatable {
       longitude: longitude ?? this.longitude,
       speed: speed ?? this.speed,
       uuid: uuid ?? this.uuid,
+      imei: imei ?? this.imei,
     );
   }
 
@@ -72,5 +77,6 @@ class LocatorState extends Equatable {
         longitude,
         speed,
         uuid,
+        imei,
       ];
 }
