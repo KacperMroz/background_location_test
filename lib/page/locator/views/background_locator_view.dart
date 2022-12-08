@@ -3,6 +3,8 @@ import 'package:backk_location_test/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'location_content_column.dart';
+
 class BackgroundLocatorView extends StatefulWidget {
   const BackgroundLocatorView({Key? key}) : super(key: key);
 
@@ -29,7 +31,7 @@ class _BackgroundLocatorViewState extends State<BackgroundLocatorView> {
                 vertical: 16,
               ),
               child: state.status == LocatorStatus.success
-                  ? _LocationContentColumn(
+                  ? LocationContentColumn(
                       motionActivity: state.motionActivity,
                       odometer: state.odometer,
                       content: state.content,
@@ -55,58 +57,6 @@ class _BackgroundLocatorViewState extends State<BackgroundLocatorView> {
           ),
         );
       },
-    );
-  }
-}
-
-class _LocationContentColumn extends StatelessWidget {
-  const _LocationContentColumn({
-    required this.motionActivity,
-    required this.odometer,
-    required this.content,
-    required this.isInSpecificArea,
-    required this.latitude,
-    required this.longitude,
-    required this.speed,
-    required this.uuid,
-    required this.imei,
-    Key? key,
-  }) : super(key: key);
-
-  final String? motionActivity;
-  final String? odometer;
-  final String? content;
-  final bool? isInSpecificArea;
-  final double? latitude;
-  final double? longitude;
-  final double? speed;
-  final String? uuid;
-  final String? imei;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-            'Jesteś w wyznaczonym miejscu: ${isInSpecificArea == true ? 'Tak' : 'Nie'}'),
-        Text('Współrzędne: $latitude $longitude'),
-        Text('Ostatnia prędkość: $speed'),
-        Text('Id: $uuid'),
-        Text('Aktywność ruchowa:$motionActivity '),
-        Text('Przebyty dystans: $odometer km'),
-        Text('IMEI: $imei')
-      ]
-          .expand(
-            (element) => [
-              element,
-              const SizedBox(
-                height: 13,
-              ),
-            ],
-          )
-          .toList(),
     );
   }
 }

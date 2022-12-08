@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_information/device_information.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
@@ -26,14 +27,23 @@ class LocatorCubit extends Cubit<LocatorState> {
         notifyOnExit: true,
         loiteringDelay: 10000),
     bg.Geofence(
-        identifier: 'DOM2',
-        radius: 150,
-        latitude: 50.6949,
-        longitude: 20.4600,
-        notifyOnEntry: true,
-        notifyOnExit: true,
-        loiteringDelay: 10000,),
+      identifier: 'DOM2',
+      radius: 150,
+      latitude: 50.6949,
+      longitude: 20.4600,
+      notifyOnEntry: true,
+      notifyOnExit: true,
+      loiteringDelay: 10000,
+    ),
   ];
+
+  void _saveLocation() {
+    FirebaseFirestore.instance.collection('location').add({
+      'latitude': state.latitude,
+      'longitude': state.longitude,
+      'imei': state.imei,
+    });
+  }
 
   Future<void> initialize() async {
     // 1.  Listen to events (See docs for all 12 available events).
@@ -145,11 +155,7 @@ class LocatorCubit extends Cubit<LocatorState> {
 
   void _onGeofence(bg.GeofenceEvent event) {
     if (event.action == 'ENTER') {
-      // timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      //   debugPrint(timer.tick.toString());
-      //   debugPrint('wchodze w strefe domu');
-      //
-      // });
+      _saveLocation();
       //todo zamiast timera tu bedzie request wysylka api mail + iq lokalizacji tzw uuid z -Location
       emit(state.copyWith(
         status: LocatorStatus.success,
@@ -175,7 +181,7 @@ class LocatorCubit extends Cubit<LocatorState> {
     final status = await permission.request();
     print('TU JESTEM@@@');
     print('Status: $status');
-    if(status == PermissionStatus.granted) {
+    if (status == PermissionStatus.granted) {
       await _onGetDeviceInfo();
     }
   }
