@@ -41,6 +41,8 @@ dependencies:
   equatable: ^2.0.5
   device_information: ^0.0.4
   permission_handler: ^10.2.0
+  cloud_firestore: ^4.1.0
+  firebase_core: ^2.0.0
 
 
 dev_dependencies:
