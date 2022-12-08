@@ -5,6 +5,7 @@ import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_information/device_information.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
 import 'package:permission_handler/permission_handler.dart';
@@ -15,7 +16,7 @@ class LocatorCubit extends Cubit<LocatorState> {
   LocatorCubit() : super(const LocatorState());
 
   JsonEncoder encoder = const JsonEncoder.withIndent("     ");
-  Permission _permission = Permission.phone;
+  final Permission _permission = Permission.phone;
 
   List<bg.Geofence> geofences = [
     bg.Geofence(
@@ -46,7 +47,6 @@ class LocatorCubit extends Cubit<LocatorState> {
   }
 
   Future<void> initialize() async {
-    // 1.  Listen to events (See docs for all 12 available events).
     requestPermission(_permission);
 
     bg.BackgroundGeolocation.onLocation(_onLocation);
@@ -58,12 +58,11 @@ class LocatorCubit extends Cubit<LocatorState> {
     bg.BackgroundGeolocation.onGeofence(_onGeofence);
 
     bg.BackgroundGeolocation.addGeofences(geofences).then((bool success) {
-      print('[addGeofence] success');
+      debugPrint('[addGeofence] success');
     });
     bg.BackgroundGeolocation.onProviderChange(_onProviderChange);
     bg.BackgroundGeolocation.onConnectivityChange(_onConnectivityChange);
 
-    // 2.  Configure the plugin
     bg.BackgroundGeolocation.ready(
       bg.Config(
         notification: bg.Notification(
@@ -72,7 +71,7 @@ class LocatorCubit extends Cubit<LocatorState> {
         ),
         reset: true,
         debug: false,
-        logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+        logLevel: bg.Config.LOG_LEVEL_ERROR,
         desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
         distanceFilter: 5.0,
         stopOnTerminate: false,
@@ -82,12 +81,11 @@ class LocatorCubit extends Cubit<LocatorState> {
     ).then((bg.State state) {
       bg.BackgroundGeolocation.start();
     }).catchError((error) {
-      print('[ready] ERROR: $error');
+      debugPrint('[ready] ERROR: $error');
     });
   }
 
   void _onLocation(bg.Location location) {
-    print('[location] - $location');
     String odometerKM = (location.odometer / 1000.0).toStringAsFixed(1);
     int confidence = location.activity.confidence;
     String activityType = location.activity.type;
@@ -95,8 +93,6 @@ class LocatorCubit extends Cubit<LocatorState> {
     double lng = location.coords.longitude;
     double speed = location.coords.speed;
     String uuid = location.uuid;
-    print(
-        "debug 3 ->>>>>>>>>>>>>>>>>>>>> [onLocation] Motion activity, type: $activityType, confidence: $confidence");
     emit(state.copyWith(
       status: LocatorStatus.success,
       content: encoder.convert(location.toMap()),
@@ -109,30 +105,29 @@ class LocatorCubit extends Cubit<LocatorState> {
   }
 
   Future<void> _onGetDeviceInfo() async {
-    String IMEI;
+    String imei;
     var imeiNo = await DeviceInformation.deviceIMEINumber;
-    IMEI = imeiNo.toString();
-    emit(state.copyWith(status: LocatorStatus.success, imei: IMEI));
-    print('IMEI: $IMEI');
+    imei = imeiNo.toString();
+    emit(state.copyWith(status: LocatorStatus.success, imei: imei));
   }
 
   void _onMotionChange(bg.Location location) {
-    print(' ---->>>>>>>>>    [motionchange] - ${location.isMoving}');
-    print('printuje tu tyyyp ${location.activity.type}');
+    debugPrint(' ---->>>>>>>>>    [motionchange] - ${location.isMoving}');
+    debugPrint('[Motion Activity Type]: ${location.activity.type}');
     if (!location.isMoving) {
-      print('nie ide nigdzie');
+      debugPrint('DEVICE IS NOT MOVING');
       bg.BackgroundGeolocation.getCurrentPosition(samples: 1, persist: true)
           .then((bg.Location location) {
-        print(
+        debugPrint(
             '[getCurrentPosition] ${location.coords.latitude} ${location.coords.longitude}');
       });
     } else {
-      print('ide i to z impetem');
+      debugPrint('DEVICE IS MOVING');
     }
   }
 
   void _onProviderChange(bg.ProviderChangeEvent event) {
-    print('$event');
+    debugPrint('$event');
     emit(state.copyWith(
       status: LocatorStatus.success,
       content: encoder.convert(event.toMap()),
@@ -140,23 +135,20 @@ class LocatorCubit extends Cubit<LocatorState> {
   }
 
   void _onConnectivityChange(bg.ConnectivityChangeEvent event) {
-    print('$event');
+    debugPrint('$event');
   }
 
   void _onActivityChange(bg.ActivityChangeEvent event) {
-    print('[activitychange] - $event');
     String motionActivity = event.activity;
     emit(state.copyWith(
       status: LocatorStatus.success,
       motionActivity: motionActivity,
     ));
-    print('printuje tu motion $motionActivity');
   }
 
   void _onGeofence(bg.GeofenceEvent event) {
     if (event.action == 'ENTER') {
       _saveLocation();
-      //todo zamiast timera tu bedzie request wysylka api mail + iq lokalizacji tzw uuid z -Location
       emit(state.copyWith(
         status: LocatorStatus.success,
         isInSpecificArea: true,
@@ -167,20 +159,12 @@ class LocatorCubit extends Cubit<LocatorState> {
         status: LocatorStatus.success,
         isInSpecificArea: false,
       ));
-      // timer!.cancel();
-      //todo tu nie strzelamy wiecej wiec ucinamy requesty
     }
-    if (event.action == 'DWELL') {
-      print('co to jest kurwa');
-      // timer!.cancel();
-    }
-    print('dom event ${event.action}');
+    if (event.action == 'DWELL') {}
   }
 
   Future<void> requestPermission(Permission permission) async {
     final status = await permission.request();
-    print('TU JESTEM@@@');
-    print('Status: $status');
     if (status == PermissionStatus.granted) {
       await _onGetDeviceInfo();
     }
