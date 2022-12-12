@@ -36,13 +36,15 @@ class LocatorCubit extends Cubit<LocatorState> {
       notifyOnExit: true,
       loiteringDelay: 10000,
     ),
+
   ];
 
   void _saveLocation() {
-    FirebaseFirestore.instance.collection('location').add({
+    FirebaseFirestore.instance.collection('locationWithDate').add({
       'latitude': state.latitude,
       'longitude': state.longitude,
       'imei': state.imei,
+      'date': DateTime.now().toLocal().toString()
     });
   }
 
