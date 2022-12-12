@@ -36,7 +36,15 @@ class LocatorCubit extends Cubit<LocatorState> {
       notifyOnExit: true,
       loiteringDelay: 10000,
     ),
-
+    bg.Geofence(
+      identifier: 'IMPEL',
+      radius: 500,
+      latitude: 51.128075,
+      longitude: 17.045076,
+      notifyOnEntry: true,
+      notifyOnExit: true,
+      loiteringDelay: 10000,
+    ),
   ];
 
   void _saveLocation() {
