@@ -121,10 +121,11 @@ class LocatorCubit extends Cubit<LocatorState> {
   }
 
   Future<void> _onGetDeviceInfo() async {
+    emit(state.copyWith(status: LocatorStatus.loading));
     String imei;
     var imeiNo = await DeviceInformation.deviceIMEINumber;
     imei = imeiNo.toString();
-    emit(state.copyWith(status: LocatorStatus.success, imei: imei));
+    emit(state.copyWith(imei: imei));
   }
 
   void _onMotionChange(bg.Location location) {
