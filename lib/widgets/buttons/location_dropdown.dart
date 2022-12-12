@@ -14,11 +14,7 @@ class LocationDropdownButtonState extends State<LocationDropdownButton> {
   String dropdownValue = ' ';
 
   final items = [
-    'Słonińskiego, Wrocław',
-    'Słonińskiego1, Wrocław',
-    'Słonińskiego2, Wrocław',
-    'Słonińskiego3, Wrocław',
-    'Słonińskiego4, Wrocław',
+    'A.Słonimskiego 1a, Wrocław',
   ];
 
   @override
@@ -28,7 +24,7 @@ class LocationDropdownButtonState extends State<LocationDropdownButton> {
         borderRadius: BorderRadius.all(Radius.circular(16)),
         color: Colors.black12,
       ),
-      width: 250,
+      width: 280,
       height: 44,
       child: DropdownButtonFormField(
           iconEnabledColor: AppColors.black,
