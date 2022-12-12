@@ -1,3 +1,5 @@
+import 'package:backk_location_test/app/injection.dart';
+import 'package:backk_location_test/page/locator/cubit/locator_cubit.dart';
 import 'package:backk_location_test/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
 
@@ -11,7 +13,7 @@ class LocationDropdownButton extends StatefulWidget {
 }
 
 class LocationDropdownButtonState extends State<LocationDropdownButton> {
-  String dropdownValue = ' ';
+  String dropdownValue = '';
 
   final items = [
     'A.Słonimskiego 1a, Wrocław',
@@ -51,6 +53,7 @@ class LocationDropdownButtonState extends State<LocationDropdownButton> {
           onChanged: (String? newValue) {
             setState(() {
               dropdownValue = newValue!;
+              getIt.get<LocatorCubit>().setLocation(dropdownValue);
             });
           }),
     );

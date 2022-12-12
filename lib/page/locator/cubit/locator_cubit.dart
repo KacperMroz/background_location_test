@@ -8,10 +8,12 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
+import 'package:injectable/injectable.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 part 'locator_state.dart';
 
+@singleton
 class LocatorCubit extends Cubit<LocatorState> {
   LocatorCubit() : super(const LocatorState());
 
@@ -54,6 +56,10 @@ class LocatorCubit extends Cubit<LocatorState> {
       'imei': state.imei,
       'date': DateTime.now().toLocal().toString()
     });
+  }
+
+  Future<void> setLocation(String location) async {
+    emit(state.copyWith(location: location));
   }
 
   Future<void> initialize() async {
