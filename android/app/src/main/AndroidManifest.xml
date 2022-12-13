@@ -24,7 +24,6 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
-            <meta-data android:name="com.transistorsoft.locationmanager.license" android:value="798e7abc81b34f4dc956256feb61183d531211336b0c59bc9a39c6986f02a986" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -35,5 +34,6 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+       <meta-data android:name="com.transistorsoft.locationmanager.license" android:value="798e7abc81b34f4dc956256feb61183d531211336b0c59bc9a39c6986f02a986" />
     </application>
 </manifest>
