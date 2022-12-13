@@ -1,3 +1,5 @@
+import 'package:backk_location_test/app/injection.dart';
+import 'package:backk_location_test/page/locator/cubit/locator_cubit.dart';
 import 'package:flutter/material.dart';
 
 class LocationContentColumn extends StatelessWidget {
@@ -26,28 +28,33 @@ class LocationContentColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-            'Jesteś w wyznaczonym miejscu: ${isInSpecificArea == true ? 'Tak' : 'Nie'}'),
-        Text('Współrzędne: $latitude $longitude'),
-        Text('Ostatnia prędkość: $speed'),
-        Text('Id: $uuid'),
-        Text('Aktywność ruchowa:$motionActivity '),
-        Text('Przebyty dystans: $odometer km'),
-        Text('IMEI: $imei')
-      ]
-          .expand(
-            (element) => [
-              element,
-              const SizedBox(
-                height: 13,
-              ),
-            ],
-          )
-          .toList(),
+    return GestureDetector(
+      onTap: (){
+        getIt.get<LocatorCubit>().saveLocation();
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+              'Jesteś w wyznaczonym miejscu: ${isInSpecificArea == true ? 'Tak' : 'Nie'}'),
+          Text('Współrzędne: $latitude $longitude'),
+          Text('Ostatnia prędkość: $speed'),
+          Text('Id: $uuid'),
+          Text('Aktywność ruchowa:$motionActivity '),
+          Text('Przebyty dystans: $odometer km'),
+          Text('IMEI: $imei')
+        ]
+            .expand(
+              (element) => [
+                element,
+                const SizedBox(
+                  height: 13,
+                ),
+              ],
+            )
+            .toList(),
+      ),
     );
   }
 }

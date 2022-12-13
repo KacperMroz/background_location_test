@@ -49,7 +49,8 @@ class LocatorCubit extends Cubit<LocatorState> {
     ),
   ];
 
-  void _saveLocation() {
+  void saveLocation() {
+    print('IM HERE');
     FirebaseFirestore.instance.collection('locationWithDate').add({
       'latitude': state.latitude,
       'longitude': state.longitude,
@@ -165,7 +166,7 @@ class LocatorCubit extends Cubit<LocatorState> {
 
   void _onGeofence(bg.GeofenceEvent event) {
     if (event.action == 'ENTER') {
-      _saveLocation();
+      saveLocation();
       emit(state.copyWith(
         status: LocatorStatus.success,
         isInSpecificArea: true,

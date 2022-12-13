@@ -1,4 +1,4 @@
-package com.example.backk_location_test
+package pl.gidcoders.locator
 
 import io.flutter.embedding.android.FlutterActivity
 
